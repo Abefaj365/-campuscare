@@ -9,6 +9,12 @@ exports.createComplaint = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please fill all required fields' });
     }
 
+    // Previously any string was accepted for priority, even though the
+    // schema only allows low / medium / high.
+    if (priority && !['low', 'medium', 'high'].includes(priority)) {
+      return res.status(400).json({ success: false, message: 'Priority must be low, medium or high' });
+    }
+
     await pool.query(
       'INSERT INTO complaints (student_id, category, location, description, priority) VALUES (?, ?, ?, ?, ?)',
       [studentId, category, location, description, priority || 'medium']
@@ -16,7 +22,7 @@ exports.createComplaint = async (req, res) => {
 
     res.status(201).json({ success: true, message: 'Complaint submitted successfully' });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: 'Failed to submit complaint' });
   }
 };
 
@@ -29,7 +35,7 @@ exports.getMyComplaints = async (req, res) => {
     );
     res.json({ success: true, data: complaints });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: 'Request failed' });
   }
 };
 
@@ -48,7 +54,7 @@ exports.getAllComplaints = async (req, res) => {
     const [complaints] = await pool.query(query, params);
     res.json({ success: true, data: complaints });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: 'Request failed' });
   }
 };
 
@@ -61,10 +67,15 @@ exports.updateStatus = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid status value' });
     }
 
-    await pool.query('UPDATE complaints SET status = ? WHERE id = ?', [status, id]);
+    // Previously this always reported success, even for a complaint
+    // ID that does not exist.
+    const [result] = await pool.query('UPDATE complaints SET status = ? WHERE id = ?', [status, id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Complaint not found' });
+    }
     res.json({ success: true, message: 'Status updated successfully' });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: 'Failed to update status' });
   }
 };
 
@@ -91,6 +102,6 @@ exports.getStats = async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: 'Request failed' });
   }
 };
