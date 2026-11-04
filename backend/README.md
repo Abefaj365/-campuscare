@@ -78,8 +78,10 @@ All routes below are under `/api`. Authenticated routes need
 | GET | /complaints/:id/rating | Owner or admin | |
 
 There is intentionally no `GET /complaints/:id` single-complaint
-endpoint yet, and no file/image upload — `multer` is listed as a
-dependency but unused. Add those only if the frontend needs them.
+endpoint yet, and no file/image upload — that is a deliberate
+project decision, not a missing feature, so `multer` was removed
+from the dependencies. Do not add image upload back without
+changing that decision.
 
 ## Environment variables
 
