@@ -34,6 +34,41 @@ The server refuses to start if `DB_HOST`, `DB_USER`, `DB_NAME`, or
 every request later. `DB_PASS` may be blank for a local MySQL user
 with no password.
 
+### Using XAMPP (recommended for this project)
+
+This backend already uses MySQL (`mysql2`), so XAMPP works as-is —
+no code change is needed. You only need XAMPP's **MySQL** module;
+Apache is not required, because this backend is Node.js, not PHP.
+
+1. Open XAMPP Control Panel and start **MySQL** (leave it running
+   before you start the backend).
+2. Open phpMyAdmin at `http://localhost/phpmyadmin`, create a
+   database called `campuscare`, select it, then use **Import** to
+   import `backend/schema.sql`.
+3. In `backend/.env`, use XAMPP's defaults (change `DB_PASS` only
+   if you have set a password for MySQL `root`):
+
+   ```ini
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_USER=root
+   DB_PASS=
+   DB_NAME=campuscare
+   JWT_SECRET=put-a-long-random-secret-here
+   ```
+
+4. Then, from the `backend` folder:
+
+   ```bash
+   npm install
+   npm start
+   ```
+
+5. Check `GET http://localhost:5000/test-db` — it should return
+   `{"success": true, "result": 2}`. If it doesn't, MySQL in XAMPP
+   is usually not running yet, or the database name in `.env`
+   doesn't match the one you created in phpMyAdmin.
+
 ## Admin accounts
 
 Public registration only creates **student** accounts. It cannot
