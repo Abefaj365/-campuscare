@@ -10,8 +10,8 @@ You need: Node.js, and MySQL. On Windows, XAMPP's MySQL is fine
 ## Step 0 — Start from a clean copy
 
 ```bash
-git clone https://github.com/Abefaj365/-campuscare.git
-cd -campuscare/backend
+git clone https://github.com/Abefaj365/-campuscare.git campuscare
+cd campuscare/backend
 ```
 
 If you already have the project, use a fresh folder instead of
