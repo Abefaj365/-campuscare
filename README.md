@@ -53,11 +53,15 @@ only need its **MySQL** module, not Apache, because this backend is
 Node.js, not PHP.
 
 ```bash
-git clone https://github.com/Abefaj365/-campuscare.git
-cd -campuscare/backend
+git clone https://github.com/Abefaj365/-campuscare.git campuscare
+cd campuscare/backend
 npm install
 cp .env.example .env
 ```
+
+(The repo folder is called `-campuscare`, with a leading hyphen, so
+cloning it into a folder called `campuscare` avoids `cd -campuscare`
+failing in a terminal.)
 
 Edit `backend/.env` (XAMPP defaults shown):
 
