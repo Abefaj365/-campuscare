@@ -6,9 +6,7 @@ exports.addRating = async (req, res) => {
     const { rating, feedback } = req.body;
     const studentId = req.user.id;
 
-    // Previously this check accepted non-numbers: "abc" < 1 and "abc" > 5
-    // are both false in JS, so "abc" passed validation and reached MySQL.
-    // It also accepted decimals like 4.5 for an integer column.
+    // Rating must be a whole number between 1 and 5.
     const ratingValue = Number(rating);
     if (!Number.isInteger(ratingValue) || ratingValue < 1 || ratingValue > 5) {
       return res.status(400).json({ success: false, message: 'Rating must be a whole number between 1 and 5' });

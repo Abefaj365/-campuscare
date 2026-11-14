@@ -2,8 +2,7 @@
 -- Fresh setup: create the database, then run this file, e.g.
 --   mysql -u root -p campuscare < backend/schema.sql
 -- or paste it into phpMyAdmin / MySQL Workbench after selecting
--- the database. This file was missing before, so a fresh clone
--- could not run at all — the code queried tables that did not exist.
+-- the database.
 --
 -- If you already have a database with data, do NOT run this blindly:
 -- it creates tables (it does not drop existing ones), but the

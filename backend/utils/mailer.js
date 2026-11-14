@@ -1,7 +1,6 @@
 // Sends password-reset emails. Only active when SMTP is configured
 // (SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS in .env — see .env.example).
-// If SMTP is not configured, isEmailConfigured() is false and callers must
-// NOT fall back to returning the token in an API response.
+// If SMTP is not configured, isEmailConfigured() is false.
 const nodemailer = require('nodemailer');
 
 function isEmailConfigured() {
