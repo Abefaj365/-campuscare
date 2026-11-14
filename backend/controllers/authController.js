@@ -8,11 +8,9 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 exports.register = async (req, res) => {
   try {
-    // SECURITY FIX: public registration can no longer choose its own role.
-    // Previously `role` came straight from the request body, so anyone could
-    // register as `admin` and gain full admin access. Every public account
-    // is now a student. Create admins with `node scripts/create-admin.js`
-    // (see backend/README.md), never through this endpoint.
+    // Public registration always creates a student account. Admins are
+    // created with `node scripts/create-admin.js` (see backend/README.md),
+    // never through this endpoint.
     const { name, email, password, student_id } = req.body;
 
     if (!name || !email || !password || !student_id) {
@@ -110,11 +108,8 @@ exports.forgotPassword = async (req, res) => {
       [hashedToken, expires, email]
     );
 
-    // SECURITY FIX: the raw reset token is NEVER returned in the API
-    // response any more. Previously anyone who knew an email could call
-    // this endpoint, take the token from the response, and reset that
-    // account without ever seeing its inbox. Now the token only goes
-    // to the account holder by email. See utils/mailer.js and README.md.
+    // The raw reset token is never returned in an API response; it only
+    // goes to the account holder by email. See utils/mailer.js and README.md.
     if (isEmailConfigured()) {
       try {
         await sendPasswordResetEmail(email, rawToken);
@@ -127,10 +122,9 @@ exports.forgotPassword = async (req, res) => {
         return res.status(500).json({ success: false, message: 'Could not send the reset email. Please try again later.' });
       }
     } else if (process.env.NODE_ENV !== 'production') {
-      // Development only, and only in the server log — never in an API
-      // response. Lets you test the reset flow locally without an SMTP
-      // server. In production, configure SMTP (see .env.example) or
-      // password reset will not reach users.
+      // Development only: the token is printed in the server log, so the
+      // reset flow can be tested without an SMTP server. In production,
+      // configure SMTP (see .env.example).
       console.warn(
         '[dev only] SMTP is not configured, so no reset email was sent. ' +
         `Reset token for ${email} (paste it into the reset form): ${rawToken}`

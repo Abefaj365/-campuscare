@@ -1,10 +1,5 @@
 // Create an admin account from the command line.
 //
-// Public registration (POST /api/auth/register) can only create
-// student accounts — it deliberately cannot create admins, because
-// letting anyone self-register as admin was a critical security bug.
-// Use this script instead:
-//
 //   node scripts/create-admin.js "Admin Name" admin@example.com "a-strong-password"
 //
 // It needs the same .env as the server (DB_* variables).

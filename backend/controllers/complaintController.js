@@ -9,8 +9,7 @@ exports.createComplaint = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please fill all required fields' });
     }
 
-    // Previously any string was accepted for priority, even though the
-    // schema only allows low / medium / high.
+    // Priority must be low, medium or high.
     if (priority && !['low', 'medium', 'high'].includes(priority)) {
       return res.status(400).json({ success: false, message: 'Priority must be low, medium or high' });
     }
@@ -67,8 +66,6 @@ exports.updateStatus = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid status value' });
     }
 
-    // Previously this always reported success, even for a complaint
-    // ID that does not exist.
     const [result] = await pool.query('UPDATE complaints SET status = ? WHERE id = ?', [status, id]);
     if (result.affectedRows === 0) {
       return res.status(404).json({ success: false, message: 'Complaint not found' });

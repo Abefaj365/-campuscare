@@ -2,10 +2,9 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-// Fail fast with a clear message instead of printing "Server running"
-// and then failing every request, which is what used to happen when
-// .env was missing. DB_PASS is intentionally optional: local MySQL
-// setups (e.g. XAMPP root) often have no password.
+// Stop at once with a clear message when a required setting is missing.
+// DB_PASS is optional: local MySQL setups (e.g. XAMPP root) often have
+// no password.
 const requiredEnv = ['DB_HOST', 'DB_USER', 'DB_NAME', 'JWT_SECRET'];
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);
 if (missingEnv.length > 0) {

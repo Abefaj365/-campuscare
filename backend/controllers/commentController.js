@@ -1,9 +1,6 @@
 const pool = require('../config/db');
 
 // Only the complaint's owner or an admin may see or discuss it.
-// Previously any logged-in user could comment on / read anyone's
-// complaint, and comments could be inserted for a complaint that
-// did not exist at all.
 async function getComplaintOrNull(id) {
   const [rows] = await pool.query('SELECT id, student_id FROM complaints WHERE id = ?', [id]);
   return rows[0] || null;
