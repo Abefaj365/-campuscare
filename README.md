@@ -1,29 +1,41 @@
 # CampusCare
 
-CampusCare is a backend for students to report campus problems, and for
-admins to track and fix them.
+CampusCare is a web application where students report campus problems
+— for example WiFi, Transportation, Electricity or Computer issues —
+and administrators track them and fix them.
 
-Students register, log in, submit a complaint (for example WiFi, Plumbing
-or Electricity), comment on it, and rate it once it is resolved. Admins
-see all complaints, change their status from pending to in progress to
+Students register, log in, submit a complaint, follow its status,
+comment on it, and rate it once it is resolved. Admins see all
+complaints, change their status from pending to in progress to
 resolved, reply in comments, and see totals by status and category.
 
-There is no frontend in this repository yet — it is a backend only.
-
-## Tech stack
-
-- Node.js + Express
-- MySQL (via `mysql2`)
-- JSON Web Tokens (JWT) for login
-- `bcryptjs` for password hashing
+It was built as the Software Development Project - II (SDP - II) at
+BGC Trust University Bangladesh, Department of Computer Science &
+Engineering.
 
 ## What it does
 
 | Who | What they can do |
 | --- | --- |
-| Student | Register, log in, submit a complaint, see only their own complaints, comment on their own complaints, rate a resolved complaint once |
+| Student | Register, log in, submit a complaint, see only their own complaints, comment on their own complaints, rate a resolved complaint once (1–5) |
 | Admin | See all complaints, change a complaint's status, comment on any complaint, see stats by status and category |
 | Anyone | Register as a student, log in, ask for a password reset |
+
+## Tech stack
+
+**Backend**
+
+- Node.js + Express 5
+- MySQL (via `mysql2`)
+- JSON Web Tokens (JWT) for login — tokens last 1 day
+- `bcryptjs` for password hashing
+
+**Frontend**
+
+- React 18 + Vite
+- Plain CSS, in the university's green theme (`#0b7a3e`) with the
+  BGC Trust University Bangladesh logo in the header
+- Talks to the backend over REST/JSON at `http://localhost:5000`
 
 ## Project layout
 
@@ -43,25 +55,58 @@ There is no frontend in this repository yet — it is a backend only.
 │   ├── .env.example       # Settings you need to copy to .env
 │   ├── README.md          # Full backend guide, API table, testing
 │   └── TESTING.md         # Step-by-step test guide
+├── frontend/
+│   ├── public/logo.jpg    # BGC Trust University Bangladesh logo
+│   ├── src/
+│   │   ├── App.jsx        # App shell, header, login state
+│   │   ├── api.js         # One client for all 13 API routes
+│   │   ├── App.css        # Green theme
+│   │   └── components/
+│   │       ├── Auth.jsx            # Login / register / forgot / reset
+│   │       ├── StudentDashboard.jsx
+│   │       ├── AdminDashboard.jsx  # Stats + all complaints
+│   │       └── ComplaintCard.jsx   # Comments, rating, status control
+│   ├── vite.config.js
+│   ├── package.json
+│   └── README.md
 └── README.md              # This file
 ```
 
 ## Setup from scratch
 
 You need Node.js and MySQL. On Windows, XAMPP's MySQL works — you
-only need its **MySQL** module, not Apache, because this backend is
-Node.js, not PHP.
+only need its **MySQL** module, not Apache, because this project is
+Node.js + React, not PHP. On Mac, MySQL can be installed with
+Homebrew (`brew install mysql`) or XAMPP.
 
 ```bash
 git clone https://github.com/Abefaj365/-campuscare.git campuscare
-cd campuscare/backend
-npm install
-cp .env.example .env
+cd campuscare
 ```
 
 (The repo folder is called `-campuscare`, with a leading hyphen, so
 cloning it into a folder called `campuscare` avoids `cd -campuscare`
 failing in a terminal.)
+
+### 1. Database
+
+Create a database called `campuscare` and import `backend/schema.sql`
+(4 tables: `users`, `complaints`, `complaint_comments`, `ratings`).
+In XAMPP, open phpMyAdmin at `http://localhost/phpmyadmin`, create
+the database, select it, and import the file. From the command line:
+
+```bash
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS campuscare;"
+mysql -u root campuscare < backend/schema.sql
+```
+
+### 2. Backend
+
+```bash
+cd backend
+npm install
+cp .env.example .env
+```
 
 Edit `backend/.env` (XAMPP defaults shown):
 
@@ -75,16 +120,7 @@ DB_NAME=campuscare
 JWT_SECRET=put-a-long-random-secret-here
 ```
 
-Create the database and its tables. In XAMPP, open phpMyAdmin at
-`http://localhost/phpmyadmin`, create a database called `campuscare`,
-select it, and import `backend/schema.sql`. From the command line:
-
-```bash
-mysql -u root -e "CREATE DATABASE IF NOT EXISTS campuscare;"
-mysql -u root campuscare < schema.sql
-```
-
-Start the server:
+Start the server (keep this terminal open):
 
 ```bash
 npm start
@@ -101,18 +137,40 @@ The server refuses to start if `DB_HOST`, `DB_USER`, `DB_NAME` or
 `JWT_SECRET` is missing, so a missing `.env` is obvious instead of
 failing silently later.
 
-## Admin accounts
+### 3. Admin account
 
 Public registration **only creates student accounts**. It cannot
 create admins — sending `"role": "admin"` in a register request is
 ignored. That was a security bug, now fixed.
 
-Make an admin from the command line, while the server is stopped
-or in a second terminal:
+Make an admin from the command line, in a second terminal:
 
 ```bash
+cd backend
 node scripts/create-admin.js "Admin Name" admin@example.com "a-strong-password"
 ```
+
+Admin accounts live in your local database, not in the code — on a
+fresh setup, create the admin again with the same script.
+
+### 4. Frontend
+
+In a second terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+# Local: http://localhost:5173/
+```
+
+Open `http://localhost:5173/` in the browser. You need both servers
+running at the same time: the backend on `:5000` and the frontend on
+`:5173`. (Do not use Live Server / Go Live for the React app — it
+only works with `npm run dev`.)
+
+> The frontend calls `http://localhost:5000`, so the demo only works
+> in the browser on the machine where the backend is running.
 
 ## Password reset
 
@@ -154,6 +212,9 @@ login, complaints, comments, ratings, status updates, admin
 stats, and password reset — including the cases that should
 fail (400, 401, 403, 404, 409).
 
+A from-scratch end-to-end suite of 34 checks (all 13 routes plus
+security checks) passes against the backend.
+
 ## Decisions, not missing features
 
 - **No image upload.** There is no file/image upload in this
@@ -161,4 +222,15 @@ fail (400, 401, 403, 404, 409).
   dependencies. Do not add it back without changing that decision.
 - **No single-complaint endpoint yet.** There is intentionally
   no `GET /complaints/:id` endpoint yet.
-- **No frontend yet.** This repository is the backend only.
+- **No notifications, no search.** The system has no email/push
+  notifications and no free-text search; the admin can filter
+  complaints by status. Both are future work, not oversights.
+
+## Team
+
+Software Development Project - II (SDP - II), Department of
+Computer Science & Engineering, BGC Trust University Bangladesh.
+
+- Abdur Rahman Ibne Efaj (240242052)
+- Tawsif Ahmed (240242095)
+- Triparna Chowdhury (2302400532)
